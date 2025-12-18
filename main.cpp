@@ -15,6 +15,11 @@ int main() {
             std::cerr << "Path " << start_path << " does not exist." << std::endl;
             return 1;
         }
+        if (!fs::is_directory(start_path))
+        {
+            std::cerr << "Path " << start_path << " is not a directory." << std::endl;
+            return 1;
+        }
         for (const auto& entry : fs::recursive_directory_iterator(start_path, ec)) {
             if (ec)
             {
@@ -25,7 +30,7 @@ int main() {
             const auto& path = entry.path();
 
             std::cout << (fs::is_directory(path) ? "[DIR]" : "[FILE]") << " ";
-            std::cout << path.parent_path().filename() << " - " << path.stem() << path.extension() <<  std::endl;
+            std::cout << path.parent_path().filename() << " - " << path.stem() << " | " << path.extension() <<  std::endl;
         }
         if (ec) {
             std::cerr << "An error occurred during final iteration: " << ec.message() << std::endl;
