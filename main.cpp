@@ -4,6 +4,7 @@
 #include <chrono>
 #include <string>
 #include <sstream>
+#include <algorithm>
 
 #include "include/FileEntry.h"
 #include "include/FormatUtils.h"
@@ -47,7 +48,7 @@ int main() {
 
                 try {
                     // Convert to std::time_t using the portable helper
-                    std::time_t tt = to_time_t(fs::last_write_time(path));
+                    std::time_t tt = TimeUtils::to_time_t(fs::last_write_time(path));
                     file.lastModified = tt;
                 } catch (const fs::filesystem_error& e) {
                     std::cerr << "Filesystem error (time conversion): " << e.what() << std::endl;
@@ -61,20 +62,15 @@ int main() {
             //std::cout << path.parent_path().filename() << " - " << path.stem() << " | " << path.extension() <<  std::endl;
         }
         std::cout << "Collected " << files.size() << " file entries." <<std::endl;
-        if (files.size() >= 3) {
-            for ( int i = 0; i < 3; i++ ) {
-                // printing the first 3 files
-                std::cout << files[i].filePath << " | ";
-                std::cout << human_readable_size(files[i].fileSize) << " | ";
-                std::cout << time_to_string(files[i].lastModified) << std::endl;
-            }
-        } else {
-            for (auto & file : files) {
-                std::cout << file.filePath << " | ";
-                std::cout << human_readable_size(file.fileSize) << " | ";
-                std::cout << time_to_string(file.lastModified) << std::endl;
-            }
+
+        const size_t limit = std::min(static_cast<size_t>(3), files.size());
+
+        for ( int i = 0; i < limit; i++ ) {
+            std::cout << files[i].filePath << " | ";
+            std::cout << FormatUtils::human_readable_size(files[i].fileSize) << " | ";
+            std::cout << TimeUtils::time_to_string(files[i].lastModified) << std::endl;
         }
+
 
         if (ec) {
             std::cerr << "An error occurred during final iteration: " << ec.message() << std::endl;
