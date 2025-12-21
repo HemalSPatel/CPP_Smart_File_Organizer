@@ -5,4 +5,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_executable(CPPSmartFileOrganizer main.cpp
         src/FileEntry.cpp
-        include/FileEntry.hpp)
+        include/FileEntry.h
+        include/TimeUtils.h
+        include/FormatUtils.h)

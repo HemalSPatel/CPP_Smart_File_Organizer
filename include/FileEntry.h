@@ -6,7 +6,6 @@
 #define CPPSMARTFILEORGANIZER_FILEENTRY_H
 #include <filesystem>
 
-
 struct FileEntry
 {
     std::filesystem::path filePath;
