@@ -5,6 +5,7 @@
 #include "include/FileEntry.h"
 #include "include/FormatUtils.h"
 #include "include/TimeUtils.h"
+#include "include/FileOrganizer.h"
 
 namespace fs = std::filesystem;
 using namespace std::chrono;
@@ -61,12 +62,17 @@ int main() {
 
         const size_t limit = std::min(static_cast<size_t>(3), files.size());
 
-        for ( int i = 0; i < limit; i++ ) {
+        for (size_t i = 0; i < limit; i++ ) {
             std::cout << files[i].filePath << " | ";
             std::cout << FormatUtils::human_readable_size(files[i].fileSize) << " | ";
             std::cout << TimeUtils::time_to_string(files[i].lastModified) << std::endl;
         }
 
+        FileOrganizer fileOrganizer(files);
+        std::unordered_map<std::string, std::vector<FileEntry>> organizedFiles = fileOrganizer.groupByExtension();
+        for (const auto& [key, value] : organizedFiles) {
+            std::cout << key << ": " << value.size() << " files" << std::endl;
+        }
 
         if (ec) {
             std::cerr << "An error occurred during final iteration: " << ec.message() << std::endl;
