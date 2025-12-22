@@ -1,10 +1,6 @@
 #include <iostream>
 #include <filesystem>
 #include <vector>
-#include <chrono>
-#include <string>
-#include <sstream>
-#include <algorithm>
 
 #include "include/FileEntry.h"
 #include "include/FormatUtils.h"
