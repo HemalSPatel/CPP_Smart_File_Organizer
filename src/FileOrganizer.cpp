@@ -43,6 +43,20 @@ std::unordered_map<std::string, std::vector<FileEntry>> FileOrganizer::groupByEx
 std::unordered_map<std::string, std::vector<FileEntry>> FileOrganizer::groupByCategory()
 {
     std::unordered_map<std::string, std::vector<FileEntry>> result;
+    for (const FileEntry& file : files)
+    {
+        std::string ext = normalizeExtension(file.filePath);
+        if (ext.empty())
+        {
+            std::cout << "No extension: " << file.filePath.filename() << std::endl;
+        }
+        auto it = extensionToCategory.find(ext);
+        if (it != extensionToCategory.end()) {
+            result[it->second].push_back(file);
+        } else {
+            result["Other"].push_back(file);
+        }
+    }
     return result;
 }
 

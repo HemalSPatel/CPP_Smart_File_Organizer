@@ -74,6 +74,11 @@ int main() {
             std::cout << key << ": " << value.size() << " files" << std::endl;
         }
 
+        auto categorized = fileOrganizer.groupByCategory();
+        for (const auto& [category, categoryFiles] : categorized) {
+            std::cout << category << ": " << categoryFiles.size() << " files" << std::endl;
+        }
+
         if (ec) {
             std::cerr << "An error occurred during final iteration: " << ec.message() << std::endl;
         }
