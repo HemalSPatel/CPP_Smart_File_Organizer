@@ -9,4 +9,6 @@ add_executable(CPPSmartFileOrganizer main.cpp
         include/TimeUtils.h
         include/FormatUtils.h
         src/FileOrganizer.cpp
-        include/FileOrganizer.h)
+        include/FileOrganizer.h
+        src/FileOperation.cpp
+        include/FileOperation.h)

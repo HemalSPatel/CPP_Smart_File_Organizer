@@ -9,13 +9,21 @@
 #include <string>
 
 #include "FileEntry.h"
+#include "FileOperation.h"
 
+enum class sortType {
+    Category,
+    Extension,
+};
 
 class FileOrganizer {
 public:
     explicit FileOrganizer(const std::vector<FileEntry>& files): files(files) {}
+    //File grouping functions
     std::unordered_map<std::string, std::vector<FileEntry>> groupByExtension();
     std::unordered_map<std::string, std::vector<FileEntry>> groupByCategory();
+    // File planning functions
+    std::vector<FileOperation> planOperations(const std::filesystem::path& baseDirectory, sortType type);
 private:
     std::vector<FileEntry> files;
     static std::string normalizeExtension(const std::filesystem::path& path);
