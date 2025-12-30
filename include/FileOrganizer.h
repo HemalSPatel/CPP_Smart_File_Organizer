@@ -11,6 +11,14 @@
 #include "FileEntry.h"
 #include "FileOperation.h"
 
+struct OrganizeOptions {
+    bool includeHidden = false;
+    bool includeSystem = false;
+    // Easy to add more later:
+    // bool skipEmpty = true;
+    // std::uintmax_t minSize = 0;
+};
+
 enum class sortType {
     Category,
     Extension,
@@ -23,7 +31,7 @@ public:
     std::unordered_map<std::string, std::vector<FileEntry>> groupByExtension();
     std::unordered_map<std::string, std::vector<FileEntry>> groupByCategory();
     // File planning functions
-    std::vector<FileOperation> planOperations(const std::filesystem::path& baseDirectory, sortType type);
+    std::vector<FileOperation> planOperations(const std::filesystem::path& baseDirectory, sortType type, const OrganizeOptions& options = {});
 private:
     std::vector<FileEntry> files;
     static std::string normalizeExtension(const std::filesystem::path& path);

@@ -5,14 +5,96 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
-
-#include "../include//FileEntry.h"
-#include "../include/FileOrganizer.h"
-
 #include <list>
 #include <unordered_set>
 
+#include "../include//FileEntry.h"
+#include "../include/FileOrganizer.h"
 #include "../include/FileOperation.h"
+
+#ifdef _WIN32
+#include <windows.h>
+#elif defined(__APPLE__) || defined(__linux__)
+#include <sys/stat.h>
+#include <unistd.h>
+#endif
+
+bool isHidden(const std::filesystem::path& p) {
+    std::string filename = p.filename().string();
+    // 1. Check for Unix-style hidden files (starts with '.')
+    // This applies to Linux, macOS, and also many cross-platform apps on Windows
+    if (filename.length() > 1 && filename[0] == '.') {
+        // Also ensure it's not the special "." or ".." directories
+        if (filename != "." && filename != "..") {
+            return true;
+        }
+    }
+    // 2. Check for Windows-style hidden files (attribute check)
+    #ifdef _WIN32
+    // Use the Windows API to get file attributes
+    DWORD attributes = GetFileAttributesA(p.string().c_str());
+    if (attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_HIDDEN)) {
+        return true;
+    }
+    #endif
+
+    // If none of the above conditions met, the file is not considered hidden by system conventions
+    return false;
+}
+
+bool isSystemFile(const std::filesystem::path& p) {
+    // First, check if the file exists using standard C++17 filesystem
+    if (!std::filesystem::exists(p)) {
+        return false;
+    }
+
+    // Platform-specific checks
+    #ifdef _WIN32
+    // On Windows, use GetFileAttributesW to check for the SYSTEM attribute.
+    // The SYSTEM attribute indicates a system file.
+    DWORD attributes = GetFileAttributesW(p.c_str());
+    if (attributes != INVALID_FILE_ATTRIBUTES) {
+        return (attributes & FILE_ATTRIBUTE_SYSTEM) != 0;
+    }
+    // If GetFileAttributesW fails, we can't determine the status.
+    return false;
+
+    #elif defined(__APPLE__) || defined(__linux__)
+    std::string pathStr = p.string();
+    if (pathStr.rfind("/bin/", 0) == 0 ||
+        pathStr.rfind("/sbin/", 0) == 0 ||
+        pathStr.rfind("/usr/bin/", 0) == 0 ||
+        pathStr.rfind("/usr/sbin/", 0) == 0 ||
+        pathStr.rfind("/etc/", 0) == 0 ||
+        pathStr.rfind("/dev/", 0) == 0) {
+        return true;
+    }
+
+    // There isn't a direct "system file" attribute like on Windows in POSIX,
+    // so this is the best we can do with cross-platform C++ and POSIX APIs.
+    return false;
+
+    #else
+    // Fallback for other platforms where specific checks are not implemented
+    return false;
+    #endif
+}
+
+static bool shouldSkipFile(const FileEntry& file, const OrganizeOptions& options) {
+    std::string filename = file.filePath.filename().string();
+
+    if (!options.includeHidden) {
+        if (isHidden(file.filePath)) {
+            return true;
+        }
+    }
+    if (!options.includeSystem) {
+        if (isSystemFile(file.filePath)) {
+            return true;
+        }
+    }
+    return false;
+}
 
 /**
  * Converts a string to lowercase.
@@ -33,10 +115,6 @@ std::unordered_map<std::string, std::vector<FileEntry>> FileOrganizer::groupByEx
     for (const FileEntry& file : files)
     {
         std::string ext = normalizeExtension(file.filePath);
-
-        if (ext.empty()) {
-            std::cout << "No extension: " << file.filePath.filename() << std::endl;
-        }
         result[ext].push_back(file);
     }
     return result;
@@ -47,10 +125,7 @@ std::unordered_map<std::string, std::vector<FileEntry>> FileOrganizer::groupByCa
     for (const FileEntry& file : files)
     {
         std::string ext = normalizeExtension(file.filePath);
-        if (ext.empty())
-        {
-            std::cout << "No extension: " << file.filePath.filename() << std::endl;
-        }
+
         auto it = extensionToCategory.find(ext);
         if (it != extensionToCategory.end()) {
             result[it->second].push_back(file);
@@ -61,7 +136,7 @@ std::unordered_map<std::string, std::vector<FileEntry>> FileOrganizer::groupByCa
     return result;
 }
 
-std::vector<FileOperation> FileOrganizer::planOperations(const std::filesystem::path& baseDirectory, sortType type) {
+std::vector<FileOperation> FileOrganizer::planOperations(const std::filesystem::path& baseDirectory, sortType type, const OrganizeOptions& options) {
     std::vector<FileOperation> result;
     std::unordered_map<std::string, std::vector<FileEntry>> groupedFiles;
     std::unordered_set<std::string> destinationPaths;
@@ -82,18 +157,22 @@ std::vector<FileOperation> FileOrganizer::planOperations(const std::filesystem::
     for (const auto& [key, fileVector]: groupedFiles) {
         for (const FileEntry& file : fileVector)
         {
-            FileOperation operation;
-            operation.sourcePath = file.filePath;
-            operation.completed = false;
-            operation.timestamp = currentTime_c;
-            operation.destinationPath = baseDirectory / key / file.filePath.filename();
-            if (destinationPaths.find(operation.destinationPath.string()) != destinationPaths.end())
-                std::clog << "WARNING: Duplicate file detected" << std::endl;
-            else
+            if (!shouldSkipFile(file, options)) {
+                FileOperation operation;
+                operation.sourcePath = file.filePath;
+                operation.completed = false;
+                operation.timestamp = currentTime_c;
+                operation.destinationPath = baseDirectory / key / file.filePath.filename();
+                if (destinationPaths.find(operation.destinationPath.string()) != destinationPaths.end())
+                    std::clog << "WARNING: Duplicate file detected" << std::endl;
+                else {
+                    result.push_back(operation);
+                }
+                destinationPaths.insert(operation.destinationPath.string());
+            }else
             {
-                result.push_back(operation);
+                std::cout << "File Skipped: " << file.filePath.filename() << std::endl;
             }
-            destinationPaths.insert(operation.destinationPath.string());
         }
     }
     return result;
