@@ -11,4 +11,6 @@ add_executable(CPPSmartFileOrganizer main.cpp
         src/FileOrganizer.cpp
         include/FileOrganizer.h
         src/FileOperation.cpp
-        include/FileOperation.h)
+        include/FileOperation.h
+        include/OperationExecutor.h
+        src/OperationExecutor.cpp)
