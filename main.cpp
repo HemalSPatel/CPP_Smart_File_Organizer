@@ -6,13 +6,15 @@
 #include "include/FormatUtils.h"
 #include "include/TimeUtils.h"
 #include "include/FileOrganizer.h"
+#include "include/OperationExecutor.h"
 
 namespace fs = std::filesystem;
 using namespace std::chrono;
 
 int main() {
     //fs::path start_path = "/Users/hemal/Desktop/Niyu Pics";
-    fs::path start_path = "/Users/hemal/Desktop/Neetcode";
+    // fs::path start_path = "/Users/hemal/Desktop/Neetcode";
+    fs::path start_path = "/Users/hemal/Desktop/TestOrganizer";
     std::error_code ec;
     std::cout << "Displaying contents of: " << (start_path) << std::endl;
 
@@ -84,6 +86,15 @@ int main() {
         for (const auto& op : operations) {
             std::cout << op.sourcePath << " -> " << op.destinationPath << std::endl;
         }
+
+        std::cout << "\nExecuting..." << std::endl;
+        OperationExecutor executor;
+        executor.executeAllOperations(operations);
+
+        std::cout << "\nPress enter to undo...";
+        std::cin.get();
+
+        executor.undoAll();
 
         if (ec) {
             std::cerr << "An error occurred during final iteration: " << ec.message() << std::endl;
