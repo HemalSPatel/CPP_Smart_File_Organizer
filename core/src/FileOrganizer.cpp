@@ -8,9 +8,9 @@
 #include <list>
 #include <unordered_set>
 
-#include "../include//FileEntry.h"
-#include "../include/FileOrganizer.h"
-#include "../include/FileOperation.h"
+#include "FileEntry.h"
+#include "FileOrganizer.h"
+#include "FileOperation.h"
 
 #ifdef _WIN32
 #include <windows.h>

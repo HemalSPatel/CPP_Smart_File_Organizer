@@ -2,11 +2,11 @@
 #include <filesystem>
 #include <vector>
 
-#include "include/FileEntry.h"
-#include "include/FormatUtils.h"
-#include "include/TimeUtils.h"
-#include "include/FileOrganizer.h"
-#include "include/OperationExecutor.h"
+#include "FileEntry.h"
+#include "FormatUtils.h"
+#include "TimeUtils.h"
+#include "FileOrganizer.h"
+#include "OperationExecutor.h"
 
 namespace fs = std::filesystem;
 using namespace std::chrono;
