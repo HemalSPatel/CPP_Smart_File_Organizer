@@ -1,27 +1,27 @@
 //
 // Created by Hemal Patel on 1/4/26.
 //
-#include <QApplication>
-#include <QMainWindow>
-#include <QLabel>
-#include <QVBoxLayout>
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
+#include <QQuickStyle>
 
 int main(int argc, char *argv[]) {
-    QApplication app(argc, argv);
+    QGuiApplication app(argc, argv);
 
-    QMainWindow window;
-    window.setWindowTitle("Smart File Organizer");
-    window.resize(800, 600);
+    // Use Fusion style for consistent cross-platform look and customization support
+    QQuickStyle::setStyle("Fusion");
 
-    QWidget *centralWidget = new QWidget();
-    QVBoxLayout *layout = new QVBoxLayout(centralWidget);
+    QQmlApplicationEngine engine;
 
-    QLabel *label = new QLabel("Smart File Organizer");
-    label->setAlignment(Qt::AlignCenter);
-    layout->addWidget(label);
+    const QUrl url(QStringLiteral("qrc:/SmartFileOrganizer/qml/Main.qml"));
 
-    window.setCentralWidget(centralWidget);
-    window.show();
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
+        &app, [url](QObject *obj, const QUrl &objUrl) {
+            if (!obj && url == objUrl)
+                QCoreApplication::exit(-1);
+        }, Qt::QueuedConnection);
+
+    engine.load(url);
 
     return app.exec();
 }
