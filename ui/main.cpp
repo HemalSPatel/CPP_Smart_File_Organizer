@@ -3,15 +3,21 @@
 //
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
 #include <QQuickStyle>
+
+#include "../ui/controllers/OrganizerController.h"
 
 int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
 
-    // Use Fusion style for consistent cross-platform look and customization support
     QQuickStyle::setStyle("Fusion");
 
     QQmlApplicationEngine engine;
+
+    // Create controller and expose to QML
+    OrganizerController controller;
+    engine.rootContext()->setContextProperty("controller", &controller);
 
     const QUrl url(QStringLiteral("qrc:/SmartFileOrganizer/qml/Main.qml"));
 

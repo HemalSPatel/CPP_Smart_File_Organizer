@@ -10,7 +10,7 @@ ApplicationWindow {
     height: 650
     title: "Smart File Organizer"
 
-    color: "#1e1e1e"  // Dark theme
+    color: "#1e1e1e"
 
     ColumnLayout {
         anchors.fill: parent
@@ -26,13 +26,14 @@ ApplicationWindow {
                 id: directoryField
                 Layout.fillWidth: true
                 placeholderText: "Select a directory to organize..."
-                text: ""
+                text: controller.directoryPath
                 color: "#ffffff"
                 background: Rectangle {
                     color: "#2d2d2d"
                     radius: 4
                     border.color: "#3d3d3d"
                 }
+                onTextChanged: controller.directoryPath = text
             }
 
             Button {
@@ -69,7 +70,7 @@ ApplicationWindow {
                 checked: false
             }
 
-            Item { Layout.fillWidth: true }  // Spacer
+            Item { Layout.fillWidth: true }
         }
 
         // Main Content - Two Panels
@@ -90,7 +91,7 @@ ApplicationWindow {
                     anchors.margins: 12
 
                     Label {
-                        text: "Files Found (0)"
+                        text: "Files Found (" + controller.fileCount + ")"
                         font.bold: true
                         color: "#ffffff"
                     }
@@ -99,13 +100,15 @@ ApplicationWindow {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         clip: true
-                        model: []  // Will be populated by controller
+                        model: controller.filesFound
 
                         delegate: Label {
                             text: modelData
                             color: "#cccccc"
                             padding: 4
                         }
+
+                        ScrollBar.vertical: ScrollBar { }
                     }
                 }
             }
@@ -122,7 +125,7 @@ ApplicationWindow {
                     anchors.margins: 12
 
                     Label {
-                        text: "Planned Operations"
+                        text: "Planned Operations (" + controller.operationCount + ")"
                         font.bold: true
                         color: "#ffffff"
                     }
@@ -131,13 +134,15 @@ ApplicationWindow {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         clip: true
-                        model: []  // Will be populated by controller
+                        model: controller.plannedOperations
 
                         delegate: Label {
                             text: modelData
                             color: "#cccccc"
                             padding: 4
                         }
+
+                        ScrollBar.vertical: ScrollBar { }
                     }
                 }
             }
@@ -152,45 +157,38 @@ ApplicationWindow {
                 text: "Scan"
                 enabled: directoryField.text.length > 0
                 onClicked: {
-                    console.log("Scanning: " + directoryField.text)
-                    // TODO: Call controller.scan()
+                    controller.scan(sortTypeCombo.currentIndex,
+                        includeHiddenCheck.checked,
+                        includeSystemCheck.checked)
                 }
             }
 
             Button {
                 text: "Execute"
-                enabled: false  // Enable when operations are planned
-                onClicked: {
-                    console.log("Executing operations")
-                    // TODO: Call controller.execute()
-                }
+                enabled: controller.canExecute
+                onClicked: controller.execute()
             }
 
             Button {
                 text: "Undo All"
-                enabled: false  // Enable when operations are completed
-                onClicked: {
-                    console.log("Undoing all operations")
-                    // TODO: Call controller.undoAll()
-                }
+                enabled: controller.canUndo
+                onClicked: controller.undoAll()
             }
 
-            Item { Layout.fillWidth: true }  // Spacer
+            Item { Layout.fillWidth: true }
 
             Label {
-                id: statusLabel
-                text: "Status: Ready"
+                text: "Status: " + controller.status
                 color: "#888888"
             }
         }
     }
 
-    // Folder picker dialog
     FolderDialog {
         id: folderDialog
         title: "Select Directory to Organize"
         onAccepted: {
-            directoryField.text = selectedFolder.toString().replace("file://", "")
+            controller.setDirectoryFromUrl(selectedFolder)
         }
     }
 }

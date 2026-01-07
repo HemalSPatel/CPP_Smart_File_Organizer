@@ -4,13 +4,21 @@ set(CMAKE_AUTOUIC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Quick QuickControls2 QuickDialogs2)
 
-qt_add_executable(SmartFileOrganizerUI main.cpp)
+qt_add_executable(SmartFileOrganizerUI
+        main.cpp
+        controllers/OrganizerController.cpp
+        controllers/OrganizerController.h
+)
 
 qt_add_qml_module(SmartFileOrganizerUI
         URI SmartFileOrganizer
         VERSION 1.0
         QML_FILES
         qml/Main.qml
+)
+
+target_include_directories(SmartFileOrganizerUI PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/controllers
 )
 
 target_link_libraries(SmartFileOrganizerUI PRIVATE
