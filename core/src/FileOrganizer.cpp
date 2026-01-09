@@ -11,6 +11,7 @@
 #include "FileEntry.h"
 #include "FileOrganizer.h"
 #include "FileOperation.h"
+#include "FormatUtils.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -18,6 +19,33 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #endif
+
+std::string FileOrganizer::buildDatePath(std::time_t timestamp, DateGranularity granularity) {
+    std::tm tm{};
+    #ifdef _WIN32
+        localtime_s(&tm, &timestamp); // Windows
+    #else
+        localtime_r(&timestamp, &tm); // POSIX
+    #endif
+
+
+    std::string year = std::to_string((tm.tm_year + 1900)); // tm_year is years since 1900
+    int month = (tm.tm_mon + 1);    // tm_mon is 0-11 (add 1 for 1-12)
+    int day = (tm.tm_mday);        // tm_mday is day of the month (1-31)
+
+    switch (granularity)
+    {
+        case DateGranularity::Day:
+            return year + "/" + FormatUtils::padNumber(month) + "/" + FormatUtils::padNumber(day);
+        case DateGranularity::Month:
+            return year + "/" + FormatUtils::padNumber(month);
+        case DateGranularity::Year:
+            return year;
+        default:
+            std::cerr << "Unknown DateGranularity Given." << std::endl;
+            return "";
+    }
+}
 
 bool isHidden(const std::filesystem::path& p) {
     std::string filename = p.filename().string();
@@ -122,8 +150,7 @@ std::unordered_map<std::string, std::vector<FileEntry>> FileOrganizer::groupByEx
 
 std::unordered_map<std::string, std::vector<FileEntry>> FileOrganizer::groupByCategory() {
     std::unordered_map<std::string, std::vector<FileEntry>> result;
-    for (const FileEntry& file : files)
-    {
+    for (const FileEntry& file : files) {
         std::string ext = normalizeExtension(file.filePath);
 
         auto it = extensionToCategory.find(ext);
@@ -132,6 +159,15 @@ std::unordered_map<std::string, std::vector<FileEntry>> FileOrganizer::groupByCa
         } else {
             result["Other"].push_back(file);
         }
+    }
+    return result;
+}
+
+std::unordered_map<std::string, std::vector<FileEntry>> FileOrganizer::groupByDate(DateGranularity granularity) {
+    std::unordered_map<std::string, std::vector<FileEntry>> result;
+    for (const FileEntry& file : files) {
+        std::string datePath = buildDatePath(file.lastModified, granularity);
+        result[datePath].push_back(file);
     }
     return result;
 }
@@ -147,6 +183,9 @@ std::vector<FileOperation> FileOrganizer::planOperations(const std::filesystem::
             break;
         case sortType::Extension:
             groupedFiles = groupByExtension();
+            break;
+        case sortType::Date:
+            groupedFiles = groupByDate(options.granularity);
             break;
         default:
             std::cerr << "Invalid method specified" << std::endl;

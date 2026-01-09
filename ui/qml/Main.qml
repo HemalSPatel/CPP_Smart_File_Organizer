@@ -54,7 +54,7 @@ ApplicationWindow {
 
             ComboBox {
                 id: sortTypeCombo
-                model: ["Category", "Extension"]
+                model: ["Category", "Extension", "Date"]
                 currentIndex: 0
             }
 
@@ -68,6 +68,12 @@ ApplicationWindow {
                 id: includeSystemCheck
                 text: "Include System"
                 checked: false
+            }
+
+            ComboBox {
+                id: dateSortGranularity
+                model: ["Year", "Month", "Day"]
+                currentIndex: 0
             }
 
             Item { Layout.fillWidth: true }

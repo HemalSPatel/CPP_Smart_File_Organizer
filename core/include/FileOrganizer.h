@@ -11,17 +11,26 @@
 #include "FileEntry.h"
 #include "FileOperation.h"
 
+enum class DateGranularity {
+    Year,
+    Month,
+    Day
+};
+
 struct OrganizeOptions {
     bool includeHidden = false;
     bool includeSystem = false;
+    DateGranularity granularity = DateGranularity::Year;
     // Easy to add more later:
     // bool skipEmpty = true;
     // std::uintmax_t minSize = 0;
 };
 
+
 enum class sortType {
     Category,
     Extension,
+    Date
 };
 
 class FileOrganizer {
@@ -30,8 +39,10 @@ public:
     //File grouping functions
     std::unordered_map<std::string, std::vector<FileEntry>> groupByExtension();
     std::unordered_map<std::string, std::vector<FileEntry>> groupByCategory();
+    std::unordered_map<std::string, std::vector<FileEntry>> groupByDate(DateGranularity granularity);
     // File planning functions
     std::vector<FileOperation> planOperations(const std::filesystem::path& baseDirectory, sortType type, const OrganizeOptions& options = {});
+    static std::string buildDatePath(std::time_t timestamp, DateGranularity granularity);
 private:
     std::vector<FileEntry> files;
     static std::string normalizeExtension(const std::filesystem::path& path);

@@ -6,6 +6,7 @@
 #define CPPSMARTFILEORGANIZER_TIMEUTILS_H
 #include <filesystem>
 #include <sstream>
+#include <string>
 
 namespace TimeUtils {
     inline std::time_t to_time_t(std::filesystem::file_time_type ftime) {

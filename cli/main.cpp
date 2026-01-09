@@ -81,7 +81,7 @@ int main() {
             std::cout << category << ": " << categoryFiles.size() << " files" << std::endl;
         }
 
-        auto operations = fileOrganizer.planOperations(start_path, sortType::Category);
+        auto operations = fileOrganizer.planOperations(start_path, sortType::Date, {false, false, DateGranularity::Month});
         std::cout << "\nPlanned operations:" << std::endl;
         for (const auto& op : operations) {
             std::cout << op.sourcePath << " -> " << op.destinationPath << std::endl;
