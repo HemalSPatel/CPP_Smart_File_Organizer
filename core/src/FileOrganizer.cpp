@@ -201,6 +201,7 @@ std::vector<FileOperation> FileOrganizer::planOperations(const std::filesystem::
                 operation.sourcePath = file.filePath;
                 operation.completed = false;
                 operation.timestamp = currentTime_c;
+                operation.baseDirectory = baseDirectory;
                 operation.destinationPath = baseDirectory / key / file.filePath.filename();
                 if (destinationPaths.find(operation.destinationPath.string()) != destinationPaths.end())
                     std::clog << "WARNING: Duplicate file detected" << std::endl;

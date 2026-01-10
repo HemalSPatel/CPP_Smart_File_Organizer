@@ -96,10 +96,17 @@ bool OperationExecutor::undoLast() {
         fs::rename(lastOperation.destinationPath, lastOperation.sourcePath);
         std::cout << "Moved: " << lastOperation.destinationPath.filename() << " back to " << lastOperation.sourcePath.parent_path() << std::endl; // Here for testing
 
-        if (fs::is_empty(lastOperation.destinationPath.parent_path())) {
-            std::cout << "Removing empty directory: " << lastOperation.destinationPath.parent_path() << std::endl;
-            fs::remove(lastOperation.destinationPath.parent_path());
+        fs::path current = lastOperation.destinationPath.parent_path();
+        while (current != lastOperation.baseDirectory && !current.empty()) {
+            if (fs::is_empty(current)) {
+                std::cout << "Removing empty directory: " << current << std::endl;
+                fs::remove(current);
+                current = current.parent_path();
+            } else {
+                break;
+            }
         }
+
         completedOperations.pop();
         return true;
     } catch ( const std::filesystem::filesystem_error& e )

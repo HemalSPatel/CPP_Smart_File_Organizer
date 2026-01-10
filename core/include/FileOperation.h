@@ -9,6 +9,7 @@
 struct FileOperation {
     std::filesystem::path sourcePath;
     std::filesystem::path destinationPath;
+    std::filesystem::path baseDirectory;
     std::time_t timestamp;
     bool completed;
 };
