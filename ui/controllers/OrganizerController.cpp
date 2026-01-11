@@ -73,7 +73,7 @@ void OrganizerController::collectFiles(const fs::path &path)
     }
 }
 
-void OrganizerController::scan(sortType type, bool includeHidden, bool includeSystem)
+void OrganizerController::scan(sortType type, const bool includeHidden, const bool includeSystem, const DateGranularity granularity)
 {
     if (m_directoryPath.isEmpty()) {
         setStatus("No directory selected");
@@ -104,6 +104,7 @@ void OrganizerController::scan(sortType type, bool includeHidden, bool includeSy
     OrganizeOptions options;
     options.includeHidden = includeHidden;
     options.includeSystem = includeSystem;
+    options.granularity = granularity;
 
     m_operations = organizer.planOperations(dirPath, type, options);
 

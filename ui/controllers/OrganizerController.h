@@ -41,7 +41,7 @@ public:
     void setDirectoryPath(const QString &path);
 
     // Methods callable from QML
-    Q_INVOKABLE void scan(sortType type = sortType::Category, bool includeHidden = false, bool includeSystem = false);
+    Q_INVOKABLE void scan(sortType type, bool includeHidden, bool includeSystem, DateGranularity granularity);
     Q_INVOKABLE void execute();
     Q_INVOKABLE void undoAll();
     Q_INVOKABLE void setDirectoryFromUrl(const QUrl &url);

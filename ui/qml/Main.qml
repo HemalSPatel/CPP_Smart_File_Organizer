@@ -74,6 +74,8 @@ ApplicationWindow {
                 id: dateSortGranularity
                 model: ["Year", "Month", "Day"]
                 currentIndex: 0
+                visible: sortTypeCombo.currentIndex === 2
+                width: visible ? implicitWidth : 0
             }
 
             Item { Layout.fillWidth: true }
@@ -165,7 +167,8 @@ ApplicationWindow {
                 onClicked: {
                     controller.scan(sortTypeCombo.currentIndex,
                         includeHiddenCheck.checked,
-                        includeSystemCheck.checked)
+                        includeSystemCheck.checked,
+                        dateSortGranularity.currentIndex)
                 }
             }
 
