@@ -143,6 +143,10 @@ std::unordered_map<std::string, std::vector<FileEntry>> FileOrganizer::groupByEx
     for (const FileEntry& file : files)
     {
         std::string ext = normalizeExtension(file.filePath);
+        // Have to make sure that the folders do not have the "." at the beginning so the folders are not hidden
+        if (ext.length() > 1 && ext[0] == '.') {
+            ext = ext.substr(1, ext.size());
+        }
         result[ext].push_back(file);
     }
     return result;
