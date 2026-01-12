@@ -111,9 +111,15 @@ void OrganizerController::scan(sortType type, const bool includeHidden, const bo
     // Update planned operations display
     m_plannedOperations.clear();
     for (const auto &op : m_operations) {
+        fs::path dest_parent = op.destinationPath.parent_path();
+        fs::path base_parent = op.baseDirectory;
+        dest_parent = fs::absolute(dest_parent);
+        base_parent = fs::absolute(base_parent);
+        fs::path relative_path = fs::relative(dest_parent, base_parent);
+
         QString display = QString::fromStdString(op.sourcePath.filename().string())
                         + " → "
-                        + QString::fromStdString(op.destinationPath.parent_path().filename().string())
+                        + QString::fromStdString(relative_path.string())
                         + "/";
         m_plannedOperations.append(display);
     }
