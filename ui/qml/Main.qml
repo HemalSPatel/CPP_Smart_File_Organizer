@@ -54,6 +54,7 @@ ApplicationWindow {
 
             ComboBox {
                 id: sortTypeCombo
+                // WARNING: Order must match sortType enum in FileOrganizer.h, TODO: implement a more robust mapping so that the order of the sort types on the GUI does not matter
                 model: ["Category", "Extension", "Date"]
                 currentIndex: 0
             }
